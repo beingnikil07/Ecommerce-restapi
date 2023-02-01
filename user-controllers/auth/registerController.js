@@ -26,6 +26,11 @@ const registerController = {
         //Jo bhi api kii body se milega ye uspar validation lagayega
         //agar koi error aati hai to wo humko mil jaayegi 
         const { error } = registerSchema.validate(req.body);
+
+        if (error) {
+            return next(error);    //throwing error 
+        }
+
         res.send({ msg: "I'm register end" });
     }
 }
