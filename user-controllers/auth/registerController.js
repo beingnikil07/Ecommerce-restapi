@@ -2,7 +2,7 @@ import Joi from "joi";    //importing joi library for validate user data
 import { User } from '../../Models';
 import bcrypt from 'bcrypt';
 import JwtService from '../../Services/JwtService';
-
+import CustomErrorHandler from '../../Services/CustomErrorHandler';
 
 const registerController = {
     async register(req, res, next) {
@@ -42,7 +42,7 @@ const registerController = {
             const exist = await User.exists({ email: req.body.email });
             //hum apni custom error ko throw karenge agar user already exist karta hai to 
             if (exist) {
-                return next(CustomErrorHandler.alreadyExist('This email is already taken'));
+                return next(CustomErrorHandler.alreadyExist("Email is already exist"));
             }
         } catch (error) {
             return next(error);
