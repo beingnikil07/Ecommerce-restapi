@@ -1,5 +1,9 @@
 import Joi from "joi";    //importing joi library for validate user data  
 import { User } from '../../Models';
+import bcrypt from 'bcrypt';
+import JwtService from '../../Services/JwtService';
+
+
 const registerController = {
     async register(req, res, next) {
 
@@ -41,11 +45,35 @@ const registerController = {
                 return next(CustomErrorHandler.alreadyExist('This email is already taken'));
             }
         } catch (error) {
-            return next(err);
+            return next(error);
         }
 
 
-        res.send({ msg: "I'm register end" });
+        //Password ko hum hash karke store karte hai database mai 
+        //Hash Password
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+        //Prepare the model 
+        const user = new User({
+            name: req.body.name,
+            email: req.body.email,
+            password: hashedPassword
+        })
+
+
+        //Hash krr liya password upper ,user ka model vii bnn liya avv hum isko save karayenge database mai
+        let access_token;
+        try {
+            const result = await user.save();
+            console.log(result);
+            //Token create karenge hum jwt ke through
+            access_token = JwtService.sign({ _id: result._id, role: result.role })
+
+        } catch (error) {
+            return next(error);
+        }
+
+        res.json({ access_token: access_token });
     }
 }
 

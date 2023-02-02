@@ -15,8 +15,6 @@ db.once('open', () => {
 
 
 
-
-
 app.use(express.json());
 // '/api' is a default prefix of all requested routes.
 app.use("/api", routes);
