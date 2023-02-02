@@ -1,7 +1,7 @@
 import Joi from "joi";    //importing joi library for validate user data  
-
+import { User } from '../../Models';
 const registerController = {
-    register(req, res, next) {
+    async register(req, res, next) {
 
         /**
          *  user register ke liye jvv vii request aayegi api se to hum kuch steps follow karenge 
@@ -30,6 +30,20 @@ const registerController = {
         if (error) {
             return next(error);    //throwing error 
         }
+        //Check if user is in the database already
+        try {
+            //abhi aage banayenge hum User model just abhi use krr rhe hai 
+            //exists ek mongoose kii method hai
+            //hum req se jop email aa rhi hai usko dekhenge apne database mai for existance
+            const exist = await User.exists({ email: req.body.email });
+            //hum apni custom error ko throw karenge agar user already exist karta hai to 
+            if (exist) {
+                return next(CustomErrorHandler.alreadyExist('This email is already taken'));
+            }
+        } catch (error) {
+            return next(err);
+        }
+
 
         res.send({ msg: "I'm register end" });
     }
