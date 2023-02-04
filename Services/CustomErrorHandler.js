@@ -14,6 +14,9 @@ class CustomErrorHandler extends Error {
     static wrongCredentials(message = "username or password is wrong") {
         return new CustomErrorHandler(401, message);
     }
+    static unAuthorized(message = "unauthorized") {
+        return new CustomErrorHandler(401, message);
+    }
 }
 
 export default CustomErrorHandler;
