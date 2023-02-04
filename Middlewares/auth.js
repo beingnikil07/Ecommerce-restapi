@@ -1,18 +1,34 @@
 import CustomErrorHandler from "../Services/CustomErrorHandler";
+import JwtService from "../Services/JwtService";
 
-const auth = (req, res, next) => {
+const auth = async (req, res, next) => {
     //getting authorization header from request header 
     let authHeader = req.headers.authorization;
-    console.log(authHeader);
     if (!authHeader) {
         return next(CustomErrorHandler.unAuthorized());
     }
-
-    //split kya karta hai kii ye split krr deta hai jo hum dete hai humne space dii mean 
-    //ye space se split karke ek array bna deta hai 
     const token = authHeader.split(' ')[1];
-    console.log(token);
 
+    //to verify token
+    try {
+        //destructuring id and role from payload 
+        const { _id, role } = await JwtService.verify(token);
+        /* way 1
+        req.user = {}; 
+        req.user._id = _id;
+        req.user.role = role;
+        */
+        //way 2
+        const user = {
+            _id: _id,
+            role: role
+        }
+        //attach krr diya user object ko current object prr joki req hai  
+        req.user = user;
+        next();
+    } catch (error) {
+        return next(CustomErrorHandler.unAuthorized());
+    }
 
 }
 export default auth;

@@ -1,5 +1,5 @@
 import { User } from '../../Models';
-
+import CustomErrorHandler from '../../Services/CustomErrorHandler';
 const userController = {
     async me(req, res, next) {
         try {
@@ -12,16 +12,16 @@ const userController = {
 
             */
 
-            const user = await User.findOne({ _id: req.user._id });
+            //humko password aur __v nhi chahiye to isko hum hide krr sakte hai using select
+            const user = await User.findOne({ _id: req.user._id }).select('-password -__v');
+            if (!user) {
+                return next(CustomErrorHandler.NotFound());
+            }
+            res.json(user);
 
         } catch (error) {
-
+            return next(error);
         }
-
-
-
-
-
     }
 }
 
