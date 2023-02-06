@@ -1,8 +1,9 @@
 import Joi from "joi";    //importing joi library for validate user data  
-import { User } from '../../Models';
+import { User, RefreshToken } from '../../Models';
 import bcrypt from 'bcrypt';
 import JwtService from '../../Services/JwtService';
 import CustomErrorHandler from '../../Services/CustomErrorHandler';
+import { REFRESH_TOKEN } from "../../config";
 
 
 const registerController = {
@@ -40,16 +41,24 @@ const registerController = {
         })
 
         let access_token;
+        let refresh_token;
         try {
             const result = await user.save();
             console.log(result);
             access_token = JwtService.sign({ _id: result._id, role: result.role })
+            //refresh token mai hum expiry ko increase krr denge aur ek unique secret key pass karenge 
+            refresh_token = JwtService.sign({ _id: result._id, role: result.role }, '1y', REFRESH_TOKEN);
+
+            //Whitelist karenge  database mai refresh token ko
+            //mongoose create method bhi deta hai humne yha token field banaya 
+            //aur usko refresh token pass krr diya 
+            await RefreshToken.create({ token: refresh_token });
 
         } catch (error) {
             return next(error);
         }
 
-        res.json({ access_token: access_token });
+        res.json({ access_token: access_token, refresh_token });
     }
 }
 export default registerController;

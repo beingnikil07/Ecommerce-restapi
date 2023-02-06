@@ -3,10 +3,12 @@
 1.Register a user
 2.Login a user 
 3.Who am I
-4.Add new Product
-5.Update a Product
-6.Get all products
-7.Get single product
-8.Delete a product 
+4.Refresh the token
+5.Logout the user
+6.Add new Product
+7.Update a Product
+8.Get all products
+9.Get single product
+10.Delete a product 
 
 
