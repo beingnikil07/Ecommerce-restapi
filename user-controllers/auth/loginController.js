@@ -6,8 +6,8 @@ import JwtService from "../../Services/JwtService";
 import { REFRESH_SECRET } from "../../config";
 
 const loginController = {
+    //for login
     async login(req, res, next) {
-
         const loginSchema = Joi.object({
             email: Joi.string().email().required(),
             password: Joi.string().pattern(new RegExp(`^[a-zA-Z0-9]{3,30}`)).required()
@@ -38,6 +38,26 @@ const loginController = {
         } catch (error) {
             return next(error);
         }
+    },
+
+    //for logout user
+    async logout(req, res, next) {
+        //validation 
+        const refreshSchema = Joi.object({
+            refresh_token: Joi.string().required()
+        });
+        const { error } = refreshSchema.validate(req.body);
+        if (error) {
+            return next(error);
+        }
+        //delete from database 
+        try {
+            await RefreshToken.deleteOne({ token: req.body.refresh_token });
+        } catch (error) {
+            return next(new Error('something went wrong in database'));
+        }
+        res.json({ status: 1 });
+
     }
 }
 export default loginController;
