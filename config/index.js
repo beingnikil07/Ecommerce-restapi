@@ -6,5 +6,5 @@ export const {
     DEBUG_MODE,
     DB_URL,
     JWT_SECRET,
-    REFRESH_TOKEN
+    REFRESH_SECRET
 } = process.env;
