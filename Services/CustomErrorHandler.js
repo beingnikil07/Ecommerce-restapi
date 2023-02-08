@@ -5,9 +5,6 @@ class CustomErrorHandler extends Error {
         this.message = message;
     }
 
-    //static method ko call karne ke liye humko class ka bject banane kii 
-    //jrurat nii hoti  isliye hum static bna rhe hai
-    //message humko wha se recive hoga jha se hum isko call karenge  
     static alreadyExist(message) {
         return new CustomErrorHandler(409, message);
     }
@@ -19,6 +16,9 @@ class CustomErrorHandler extends Error {
     }
     static NotFound(message = "404 Not Found") {
         return new CustomErrorHandler(404, message);
+    }
+    static serverError(message = "Internal server error") {
+        return new CustomErrorHandler(500, message);
     }
 }
 
