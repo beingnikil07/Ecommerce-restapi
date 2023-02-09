@@ -3,7 +3,7 @@ import multer from 'multer';
 import CustomErrorHandler from '../Services/CustomErrorHandler';
 import path from 'path';
 import fs from 'fs';
-import Joi from 'joi';
+import productSchema from '../validators/productValidator';
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
@@ -15,24 +15,16 @@ const storage = multer.diskStorage({
 const handleMultipartData = multer({ storage, limits: { fileSize: 1000000 * 10 } }).single('image');
 
 const productController = {
-
     async store(req, res, next) {
-
         //Multipart form data
         handleMultipartData(req, res, async (err) => {
             if (err) {
                 return next(CustomErrorHandler.serverError(err.message));
             }
-
             const filePath = req.file.path;
-
             //validation
-            const productSchema = Joi.object({
-                name: Joi.string().required(),
-                price: Joi.number().required(),
-                size: Joi.string().required(),
-            })
             const { error } = productSchema.validate(req.body);
+
             if (error) {
                 // Delete the uploaded file
                 fs.unlink(`${appRoot}/${filePath}`, (err) => {
@@ -60,6 +52,54 @@ const productController = {
             res.status(201).json(document);
         })
 
-    }
+    },
+    update(req, res, next) {
+        handleMultipartData(req, res, async (err) => {
+            if (err) {
+                return next(CustomErrorHandler.serverError(err.message));
+            }
+            let filePath;
+            if (req.file) {
+                filePath = req.file.path;
+            }
+
+            // validation
+            const { error } = productSchema.validate(req.body);
+            if (error) {
+                // Delete the uploaded file
+                if (req.file) {
+                    fs.unlink(`${appRoot}/${filePath}`, (err) => {
+                        if (err) {
+                            return next(
+                                CustomErrorHandler.serverError(err.message)
+                            );
+                        }
+                    });
+                }
+
+                return next(error);
+                // rootfolder/uploads/filename.png
+            }
+
+            const { name, price, size } = req.body;
+            let document;
+            try {
+                document = await product.findOneAndUpdate(
+                    { _id: req.params.id },
+                    {
+                        name,
+                        price,
+                        size,
+                        ...(req.file && { image: filePath }),
+                    },
+                    { new: true }
+                );
+            } catch (err) {
+                return next(err);
+            }
+            res.status(201).json(document);
+        });
+    },
+
 }
 export default productController;
