@@ -21,6 +21,7 @@ const productController = {
             if (err) {
                 return next(CustomErrorHandler.serverError(err.message));
             }
+            console.log(req.file.path);
             const filePath = req.file.path;
             //validation
             const { error } = productSchema.validate(req.body);
@@ -129,6 +130,18 @@ const productController = {
         }
 
         return res.status(201).json(documents);
+    },
+
+    async getAProduct(req, res, next) {
+
+        let document;
+        try {
+            document = await product.findOne({ _id: req.params.id }).select('-__v');
+        } catch (error) {
+            return next(CustomErrorHandler.serverError());
+        }
+        return res.status(201).json(document);
+
     }
 
 }
