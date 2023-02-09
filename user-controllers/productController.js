@@ -53,7 +53,7 @@ const productController = {
         })
 
     },
-   
+
     update(req, res, next) {
         handleMultipartData(req, res, async (err) => {
             if (err) {
@@ -116,6 +116,20 @@ const productController = {
             }
         });
         res.json(document);
+    },
+
+    async getAllProducts(req, res, next) {
+        let documents;
+
+        try {
+            documents = await product.find().select('-__v');
+
+        } catch (error) {
+            return next(CustomErrorHandler.serverError());
+        }
+
+        return res.status(201).json(documents);
     }
+
 }
 export default productController;
