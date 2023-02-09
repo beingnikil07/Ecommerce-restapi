@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();   //Including express router 
-import { registerController, loginController, userController, refreshController,productController} from '../user-controllers';
+import { registerController, loginController, userController, refreshController, productController } from '../user-controllers';
 import auth from '../Middlewares/auth.js';
 
 router.post('/register', registerController.register);
@@ -9,7 +9,7 @@ router.get('/me', auth, userController.me);
 router.post('/refresh', refreshController.refresh);
 router.post('/logout', auth, loginController.logout);
 
-router.post('/products', productController.store);    //route to create a product
+router.post('/products', auth, productController.store);    //route to create a product
 
 
 export default router;

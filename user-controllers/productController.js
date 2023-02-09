@@ -4,6 +4,7 @@ import CustomErrorHandler from '../Services/CustomErrorHandler';
 import path from 'path';
 import fs from 'fs';
 import Joi from 'joi';
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => {
@@ -14,12 +15,15 @@ const storage = multer.diskStorage({
 const handleMultipartData = multer({ storage, limits: { fileSize: 1000000 * 10 } }).single('image');
 
 const productController = {
+
     async store(req, res, next) {
+
         //Multipart form data
         handleMultipartData(req, res, async (err) => {
             if (err) {
                 return next(CustomErrorHandler.serverError(err.message));
             }
+
             const filePath = req.file.path;
 
             //validation
@@ -30,22 +34,17 @@ const productController = {
             })
             const { error } = productSchema.validate(req.body);
             if (error) {
-                //abhi agar file to validation se pehle he store ho gyi to aaise mai
-                // agar aaisa hota vii hai to uss store hui file ko hum delete krr denge 
-
+                // Delete the uploaded file
                 fs.unlink(`${appRoot}/${filePath}`, (err) => {
                     //This callback will get called each time when file gets deleted
                     if (err) {
                         return next(CustomErrorHandler.serverError(err.message));
                     }
                 });
-                //joi ke validation mai koi error aaye to 
                 return next(error);
             }
 
             const { name, price, size } = req.body;
-            //storing file path in database
-            //kyuki hum database mai file ka path store karayenge image ka bss
 
             let document;
             try {
@@ -63,5 +62,4 @@ const productController = {
 
     }
 }
-
 export default productController;
