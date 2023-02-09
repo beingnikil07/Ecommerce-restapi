@@ -53,6 +53,7 @@ const productController = {
         })
 
     },
+   
     update(req, res, next) {
         handleMultipartData(req, res, async (err) => {
             if (err) {
@@ -101,5 +102,20 @@ const productController = {
         });
     },
 
+    async delete(req, res, next) {
+        const document = await product.findOneAndRemove({ _id: req.params.id });
+        if (!document) {
+            return next(new Error('Nothing to delete'));
+        }
+        //image delete
+        const imagePath = document.image;
+        //image delete hone ke baad ye callback call ho lega
+        fs.unlink(`${appRoot}/${imagePath}`, (err) => {
+            if (err) {
+                return next(CustomErrorHandler.serverError());
+            }
+        });
+        res.json(document);
+    }
 }
 export default productController;
